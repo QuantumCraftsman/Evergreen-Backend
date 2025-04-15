@@ -19,3 +19,4 @@ console.log("Multer middleware loaded");
 export const upload = multer({ 
     storage, 
 });
+//write a method
