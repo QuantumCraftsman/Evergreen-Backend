@@ -14,15 +14,17 @@ const registerUser = asyncHandler(async(req,res,next)=>{
    //upload them to cloudinary,avatar
    //create user object -create enry in db
 
-   const{fullName,email,userName,password} = req.body;
+
+   console.log(req.body)
+   const{fullName,email,username,password} = req.body;
   
-   if([fullName,email,userName,password].some((field)=>
+   if([fullName,email,username,password].some((field)=>
    field?.trim()==="")
 ){
     throw new ApiError(400,"all feilds are required")
    }
     const existedUser =  await User.findOne({
-    $or: [{userName},{email}]
+    $or: [{username},{email}]
    })
    if(existedUser){
     throw new ApiError(409,"user with email and username already existes")
@@ -46,14 +48,15 @@ const registerUser = asyncHandler(async(req,res,next)=>{
         throw  new ApiError(400,"coverimage not uploaded to cloudinary")
 
       }
-       const user =  await User.create({
-        fullName,
-        avatar:avatar.url,
+      const user = await User.create({
+        fullName: fullName.trim(),
+        avatar: avatar.url,
         coverImage: coverImage.url,
-        email:email.toLowerCase(),
+        email: email.trim().toLowerCase(),
         password,
-        userName:userName.toLowerCase()
-      })
+        username: username.trim().toLowerCase()
+      });
+      
       const createdUser = await User.findById(user._id).select("-password -refreshToken")
 if(!createdUser){
     throw  new ApiError(500,"something went wrong while registring the user")
