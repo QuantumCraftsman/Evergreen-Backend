@@ -21,7 +21,7 @@ app.use((err, req, res, next) => {
 import userRouter from './routes/user.routes.js'
 
 console.log("route is loaded")
-app.use("api/v1/users",userRouter)
+app.use("/api/v1/users",userRouter)
 
 
 export {app} 
