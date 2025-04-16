@@ -14,7 +14,7 @@ const registerUser = asyncHandler(async(req,res,next)=>{
    //upload them to cloudinary,avatar
    //create user object -create enry in db
 
-   const{fullName,email,userName,password} = req.body
+   const{fullName,email,userName,password} = req.body;
   
    if([fullName,email,userName,password].some((field)=>
    field?.trim()==="")
@@ -46,11 +46,11 @@ const registerUser = asyncHandler(async(req,res,next)=>{
         throw  new ApiError(400,"coverimage not uploaded to cloudinary")
 
       }
-       const user = User.create({
+       const user =  await User.create({
         fullName,
         avatar:avatar.url,
-        coverImage: coverImage,
-        email,
+        coverImage: coverImage.url,
+        email:email.toLowerCase(),
         password,
         userName:userName.toLowerCase()
       })
