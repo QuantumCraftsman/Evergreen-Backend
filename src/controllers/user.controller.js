@@ -7,11 +7,11 @@ import { ApiResponse } from "../utils/ApiResponse.js";
  const generateAccessTokenAndRefreshToken = async(userId)=>{
   try{
     const user =  await User.findById(userId)
-    const accessTokenn = user.generateAccessToken()
+    const accessToken = user.generateAccessToken()
     const refreshToken = user.generateRefreshToken()
     user.refreshToken = refreshToken
     await user.save({validateBeforeSave: false})
-    return {refreshToken,accessTokenn}
+    return {refreshToken,accessToken}
 
   }catch(error){
     throw new ApiError(500,"something wend wrong while generataing token")
@@ -99,21 +99,21 @@ const loginuser = asyncHandler(async(req,res,next)=>{
    if(!isPasswordValid){
     throw new ApiError(401,"user does not exists")
    }
-  const {accessTokenn,refreshToken}= await generateAccessTokenAndRefreshToken (user._id)
+  const {accessToken,refreshToken}= await generateAccessTokenAndRefreshToken (user._id)
   const loggedInUser = await User.findById(user._id).select("-password -refreshToken" )
   const options = {
-    http:true,
+    httponly:true,
     secure:true
   }
   return res
   .status(200)
-  .cookie("accessToken",accessTokenn,options)
+  .cookie("accessToken",accessToken,options)
   .cookie("refreshToken",refreshToken,options)
   .json(
     new ApiResponse(
       200,
       {
-        user:loggedInUser,accessTokenn,refreshToken
+        user:loggedInUser,accessToken,refreshToken
       },
       "user logged in successfully"
     )
@@ -140,8 +140,8 @@ const logoutUser = asyncHandler(async(req,res,next)=>{
   }
   return res
   .status(200)
-  .clearCookie("accessToken",accessTokenn)
-  .clearCookie("refreshToken",refreshTokenn)
+  .clearCookie("accessToken",accessToken)
+  .clearCookie("refreshToken",refreshToken)
 
 
 })
