@@ -3,7 +3,7 @@ import { ApiError } from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-
+import { verifyJWT } from "../middlewares/auth.middleware.js";
  const generateAccessTokenAndRefreshToken = async(userId)=>{
   try{
     const user =  await User.findById(userId)
@@ -124,7 +124,7 @@ const loginuser = asyncHandler(async(req,res,next)=>{
 
 })
 const logoutUser = asyncHandler(async(req,res,next)=>{
-  User.findByIdAndUpdate(req.user._id,{
+   await User.findByIdAndUpdate(req.user._id,{
     $set:
     {
       refrestToken :undefined
@@ -140,10 +140,21 @@ const logoutUser = asyncHandler(async(req,res,next)=>{
   }
   return res
   .status(200)
-  .clearCookie("accessToken",accessToken)
-  .clearCookie("refreshToken",refreshToken)
+  .clearCookie("accessToken",options)
+  .clearCookie("refreshToken",options)
 
 
 })
+const refreshAcessToken = asyncHandler(async(req,res)=>{
+   const incomingRefreshToken = req.cookie.refreshToken||req.body.refreshToken
+if(!incomingRefreshToken){
+  throw new ApiError(401,"unauthorized token")
+}
+ const decodedToken = jwt.verify(
+  incomingRefreshToken,
+  process.env.REFRESH_TOKEN_SECRET
+)
+User.findById(decodedToken)
+  })
 
 export {registerUser,loginuser,logoutUser}
