@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import jwt from "jsonwebtoken";
  const generateAccessTokenAndRefreshToken = async(userId)=>{
   try{
     const user =  await User.findById(userId)
@@ -127,13 +128,14 @@ const logoutUser = asyncHandler(async(req,res,next)=>{
    await User.findByIdAndUpdate(req.user._id,{
     $set:
     {
-      refrestToken :undefined
+      refreshToken :undefined
     }
   },
     {
       new:true
     }
   )
+  
   const options={
     httponly:true,
     secure:true
@@ -142,19 +144,46 @@ const logoutUser = asyncHandler(async(req,res,next)=>{
   .status(200)
   .clearCookie("accessToken",options)
   .clearCookie("refreshToken",options)
+  console.log("logout")
 
-
+ 
 })
 const refreshAcessToken = asyncHandler(async(req,res)=>{
    const incomingRefreshToken = req.cookie.refreshToken||req.body.refreshToken
 if(!incomingRefreshToken){
   throw new ApiError(401,"unauthorized token")
 }
- const decodedToken = jwt.verify(
-  incomingRefreshToken,
-  process.env.REFRESH_TOKEN_SECRET
-)
-User.findById(decodedToken)
+try {
+   const decodedToken = jwt.verify(
+    incomingRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  )
+    const user  = await User.findById(decodedToken)
+    if(!user){
+      throw new ApiError(401,"invalid refresh tokenm")
+    }
+    if(incomingRefreshToken!=user?.refreshToken){
+      throw new ApiError(401,"refresh token is expired or used")
+    }
+    const options={
+      httponly:true,
+      secure:true
+    }
+    const {accessToken,newrefreshToken}=generateAccessTokenAndRefreshToken(user._id)
+    return res
+    .status(200)
+    .cookie("accessToken",accessToken,options)
+    .cookie("refreshToken",newrefreshToken,options)
+    .json 
+    new ApiResponse(
+      200,
+      {accessToken,refreshToken:newrefreshToken}
+    )
+} catch (error) {
+  throw  new ApiError(401,error?.message||"some error in generating new token")
+  
+}
+
   })
 
-export {registerUser,loginuser,logoutUser}
+export {registerUser,loginuser,logoutUser,refreshAcessToken}
