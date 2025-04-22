@@ -29,7 +29,7 @@ const registerUser = asyncHandler(async(req,res,next)=>{
    //create user object -create enry in db
 
 
-   console.log(req.body)
+  //  console.log(req.body)
    const{fullName,email,username,password} = req.body;
   
    if([fullName,email,username,password].some((field)=>
@@ -124,7 +124,7 @@ const loginuser = asyncHandler(async(req,res,next)=>{
 
 
 })
-const logoutUser = asyncHandler(async(req,res,next)=>{
+const logoutUser = asyncHandler(async(req,res)=>{
    await User.findByIdAndUpdate(req.user._id,{
     $set:
     {
@@ -144,7 +144,7 @@ const logoutUser = asyncHandler(async(req,res,next)=>{
   .status(200)
   .clearCookie("accessToken",options)
   .clearCookie("refreshToken",options)
-  console.log("logout")
+
 
  
 })
@@ -182,12 +182,12 @@ try {
 } catch (error) {
   throw  new ApiError(401,error?.message||"some error in generating new token")
   
-}
+}mm
 
   })
   const changeCurrentPassword = asyncHandler(async(req,res)=>{
     const {oldPassword,newPassword }=req.body
-     const user = User.findById(req.user?._id)
+     const user =  await User.findById(req.user?._id)
      const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
      if(!isPasswordCorrect){
       throw new ApiError(400,"invalid old password")
@@ -237,10 +237,29 @@ $set:{
     },{new:true}).select("-password")
 
   })
+  const updateCoverImage = asyncHandler(async(req,res)=>{
+    const coverImageLocalPath = req.file?.path
+    if(!coverImageLocalPath){
+      throw new ApiError(400,"cover file is missing")
+    }
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    if(!coverImage.url){
+      throw new ApiError(400,"coverImage file is missing")
+    }
+    await User.findByIdAndUpdate(req.user._id,{
+$set:{
+  coverImage:coverImage.url
+}
+    },{new:true}).select("-password")
+
+  })
 
 export {registerUser,
   loginuser,
   logoutUser,
   refreshAcessToken,
   changeCurrentPassword,
-  getCurrentUser}
+  getCurrentUser,
+  updaeUserAvatar,
+  updateCoverImage
+}
