@@ -1,22 +1,22 @@
-// require('dotenv').config({path: './env'})
-import dotenv from "dotenv"
-import connectDB from "./Db/index.js";
-import {app} from './app.js'
-dotenv.config({
-    path: './.env'
-})
+// // require('dotenv').config({path: './env'})
+// import dotenv from "dotenv"
+// import connectDB from "./Db/index.js";
+// import {app} from './app.js'
+// dotenv.config({
+//     path: './.env'
+// })
 
 
 
-connectDB()
-.then(() => {
-    app.listen(process.env.PORT || 8000, () => {
-        console.log(`⚙️ Server is running at port : ${process.env.PORT}`);
-    })
-})
-.catch((err) => {
-    console.log("MONGO db connection failed !!! ", err);
-})
+// connectDB()
+// .then(() => {
+//     app.listen(process.env.PORT || 8000, () => {
+//         console.log(`⚙️ Server is running at port : ${process.env.PORT}`);
+//     })
+// })
+// .catch((err) => {
+//     console.log("MONGO db connection failed !!! ", err);
+// })
 
 
 
@@ -48,3 +48,19 @@ const app = express()
 })()
 
 */
+import express from "express";
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+const users = [];
+
+app.post("/signup",(req,res)=>{
+
+})
+app.post("/signin",(req,res)=>{
+
+})
+
+app.listen(3000)
+

@@ -5,7 +5,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import jwt from "jsonwebtoken";
- const generateAccessTokenAndRefreshToken = async(userId)=>{
+ const generateAccessTokenAndRefreshToken = async(userId)=>{ 
   try{
     const user =  await User.findById(userId)
     const accessToken = user.generateAccessToken()
