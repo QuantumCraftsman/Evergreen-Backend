@@ -253,22 +253,7 @@ $set:{
     },{new:true}).select("-password")
 
   })
-  const updateCovermage = asyncHandler(async(req,res)=>{
-    const coverImageLocalPath = req.file?.path
-    if(!coverImageLocalPath){
-      throw new ApiError(400,"cover file is missing")
-    }
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
-    if(!coverImage.url){
-      throw new ApiError(400,"coverImage file is missing")
-    }
-    await User.findByIdAndUpdate(req.user._id,{
-$set:{
-  coverImage:coverImage.url
-}
-    },{new:true}).select("-password")
-
-  })
+  
 
 export {registerUser,
   loginuser,
@@ -279,6 +264,4 @@ export {registerUser,
   updaeUserAvatar,
   updateCoverImage
 }
-
-
 // 
