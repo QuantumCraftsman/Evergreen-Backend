@@ -10,7 +10,7 @@ import jwt from "jsonwebtoken";
     const user =  await User.findById(userId)
     const accessToken = user.generateAccessToken()
     const refreshToken = user.generateRefreshToken()
-    user.refreshToken = refreshToken
+    user.refreshToken = refreshTokenF401
     await user.save({validateBeforeSave: false})
     return {refreshToken,accessToken}
 
